@@ -1,5 +1,8 @@
 name: 증권 리포트 Automation
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   schedule:
     - cron: "0 23 * * 0-4"
@@ -23,6 +26,9 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          ALLOW_AI_FALLBACK: ${{ vars.ALLOW_AI_FALLBACK }}
+          NEWS_LIMIT: ${{ vars.NEWS_LIMIT }}
+          MAX_PAGES: ${{ vars.MAX_PAGES }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PWD: ${{ secrets.MAIL_PWD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}

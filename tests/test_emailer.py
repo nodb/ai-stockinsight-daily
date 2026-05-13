@@ -17,6 +17,9 @@ class EmailerTests(unittest.TestCase):
         settings = Settings(
             openai_api_key=None,
             openai_model="gpt-4o-mini",
+            allow_ai_fallback=False,
+            news_limit=50,
+            max_pages=4,
             mail_user=None,
             mail_pwd=None,
             mail_to=[],

@@ -4,7 +4,7 @@ import json
 import logging
 from textwrap import shorten
 
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
 
 from .models import Article, ArticleAnalysis, MacroContext, NewsletterAnalysis
 
@@ -35,13 +35,21 @@ class OpenAINewsAnalyzer:
             for start in range(0, len(quick_articles), 10):
                 batch = quick_articles[start : start + 10]
                 analyses.update(self._analyze_batch(client, batch, macro, tier="quick"))
+            headline = self._build_headline(client, macro, articles[:5])
+        except RateLimitError as exc:
+            if not self.allow_fallback:
+                raise RuntimeError(
+                    "OpenAI quota/rate limit error. Check OPENAI_API_KEY billing/credits, "
+                    "or set ALLOW_AI_FALLBACK=true to send a non-AI fallback report."
+                ) from exc
+            LOGGER.exception("OpenAI quota/rate limit error. Falling back to deterministic summaries.")
+            return self._fallback_analysis(articles, macro)
         except Exception:
             if not self.allow_fallback:
                 raise
             LOGGER.exception("OpenAI analysis failed. Falling back to deterministic summaries.")
             return self._fallback_analysis(articles, macro)
 
-        headline = self._build_headline(client, macro, articles[:5])
         return NewsletterAnalysis(headline=headline, articles=analyses)
 
     def _analyze_batch(

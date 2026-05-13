@@ -23,8 +23,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="Render HTML to out/newsletter.html without sending email.")
     parser.add_argument("--allow-ai-fallback", action="store_true", help="Use rule-based summaries if OpenAI is unavailable.")
     parser.add_argument("--no-verify-ssl", action="store_true", help="Disable SSL verification for local crawler diagnostics.")
-    parser.add_argument("--limit", type=int, default=50, help="Maximum number of ranked articles to analyze.")
-    parser.add_argument("--max-pages", type=int, default=4, help="Maximum list pages to crawl per Naver Finance section.")
+    parser.add_argument("--limit", type=int, default=None, help="Maximum number of ranked articles to analyze.")
+    parser.add_argument("--max-pages", type=int, default=None, help="Maximum list pages to crawl per Naver Finance section.")
     return parser.parse_args()
 
 
@@ -35,15 +35,18 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     settings = Settings.from_env()
     verify_ssl = settings.http_verify_ssl and not args.no_verify_ssl
+    allow_ai_fallback = args.allow_ai_fallback or settings.allow_ai_fallback
+    limit = args.limit if args.limit is not None else settings.news_limit
+    max_pages = args.max_pages if args.max_pages is not None else settings.max_pages
 
     macro = MacroCollector(verify_ssl=verify_ssl).collect()
     LOGGER.info("Collected macro context: %s", macro.as_prompt_context())
 
     collector = NaverFinanceCollector(verify_ssl=verify_ssl)
-    articles = collector.collect_recent(max_pages=args.max_pages)
+    articles = collector.collect_recent(max_pages=max_pages)
     LOGGER.info("Collected %s raw articles", len(articles))
 
-    ranked_articles = rank_and_dedupe(articles, limit=args.limit)
+    ranked_articles = rank_and_dedupe(articles, limit=limit)
     if not ranked_articles:
         raise RuntimeError("No recent Naver Finance articles were collected.")
 
@@ -54,7 +57,7 @@ def main() -> None:
     analyzer = OpenAINewsAnalyzer(
         api_key=settings.openai_api_key,
         model=settings.openai_model,
-        allow_fallback=args.allow_ai_fallback,
+        allow_fallback=allow_ai_fallback,
     )
     analysis = analyzer.analyze(ranked_articles, macro)
 

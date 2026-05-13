@@ -35,6 +35,9 @@ def _env_int(name: str, default: int) -> int:
 class Settings:
     openai_api_key: str | None
     openai_model: str
+    allow_ai_fallback: bool
+    news_limit: int
+    max_pages: int
     mail_user: str | None
     mail_pwd: str | None
     mail_to: list[str]
@@ -47,6 +50,9 @@ class Settings:
         return cls(
             openai_api_key=_env_str("OPENAI_API_KEY"),
             openai_model=_env_str("OPENAI_MODEL", "gpt-4o-mini") or "gpt-4o-mini",
+            allow_ai_fallback=_env_bool("ALLOW_AI_FALLBACK", False),
+            news_limit=_env_int("NEWS_LIMIT", 50),
+            max_pages=_env_int("MAX_PAGES", 4),
             mail_user=_env_str("MAIL_USER"),
             mail_pwd=_env_str("MAIL_PWD"),
             mail_to=_split_recipients(os.getenv("MAIL_TO")),
