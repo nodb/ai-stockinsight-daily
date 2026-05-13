@@ -24,8 +24,8 @@ jobs:
 
       - name: Run newsletter automation
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           ALLOW_AI_FALLBACK: ${{ vars.ALLOW_AI_FALLBACK }}
           NEWS_LIMIT: ${{ vars.NEWS_LIMIT }}
           MAX_PAGES: ${{ vars.MAX_PAGES }}

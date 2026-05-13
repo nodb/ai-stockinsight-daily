@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from stockinsight.ai import OpenAINewsAnalyzer
+from stockinsight.ai import GeminiNewsAnalyzer
 from stockinsight.collector import NaverFinanceCollector
 from stockinsight.config import Settings
 from stockinsight.emailer import NewsletterEmailer
@@ -21,7 +21,7 @@ LOGGER = logging.getLogger("stockinsight")
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build and send the 증권 리포트 newsletter.")
     parser.add_argument("--dry-run", action="store_true", help="Render HTML to out/newsletter.html without sending email.")
-    parser.add_argument("--allow-ai-fallback", action="store_true", help="Use rule-based summaries if OpenAI is unavailable.")
+    parser.add_argument("--allow-ai-fallback", action="store_true", help="Use rule-based summaries if Gemini is unavailable.")
     parser.add_argument("--no-verify-ssl", action="store_true", help="Disable SSL verification for local crawler diagnostics.")
     parser.add_argument("--limit", type=int, default=None, help="Maximum number of ranked articles to analyze.")
     parser.add_argument("--max-pages", type=int, default=None, help="Maximum list pages to crawl per Naver Finance section.")
@@ -54,9 +54,9 @@ def main() -> None:
     for article in ranked_articles:
         article.tickers = ticker_mapper.extract(article.title + " " + article.body)
 
-    analyzer = OpenAINewsAnalyzer(
-        api_key=settings.openai_api_key,
-        model=settings.openai_model,
+    analyzer = GeminiNewsAnalyzer(
+        api_key=settings.gemini_api_key,
+        model=settings.gemini_model,
         allow_fallback=allow_ai_fallback,
     )
     analysis = analyzer.analyze(ranked_articles, macro)

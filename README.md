@@ -1,6 +1,6 @@
 # 증권 리포트
 
-네이버 증권 뉴스를 수집하고 OpenAI API로 투자 관점 요약을 생성해 매일 아침 이메일로 발송하는 서버리스 뉴스레터 자동화 프로젝트입니다.
+네이버 증권 뉴스를 수집하고 Gemini API로 투자 관점 요약을 생성해 매일 아침 이메일로 발송하는 서버리스 뉴스레터 자동화 프로젝트입니다.
 
 ## 주요 기능
 
@@ -50,9 +50,9 @@ python main.py --dry-run --allow-ai-fallback --no-verify-ssl
 
 | 이름 | 설명 |
 | --- | --- |
-| `OPENAI_API_KEY` | OpenAI API 키 |
-| `OPENAI_MODEL` | 기본값 `gpt-4o-mini` |
-| `ALLOW_AI_FALLBACK` | OpenAI 실패 시 기본 요약으로 발송할지 여부. 기본값 `false` |
+| `GEMINI_API_KEY` | Google AI Studio에서 생성한 Gemini API 키 |
+| `GEMINI_MODEL` | 기본값 `gemini-2.5-flash` |
+| `ALLOW_AI_FALLBACK` | Gemini 실패 시 기본 요약으로 발송할지 여부. 기본값 `false` |
 | `NEWS_LIMIT` | 분석 대상 기사 수. 기본값 `50` |
 | `MAX_PAGES` | 네이버 증권 섹션별 수집 페이지 수. 기본값 `4` |
 | `MAIL_USER` | 발신 이메일 |
@@ -68,20 +68,30 @@ python main.py --dry-run --allow-ai-fallback --no-verify-ssl
 
 GitHub 저장소의 `Settings > Secrets and variables > Actions`에 다음 값을 추가합니다.
 
-- `OPENAI_API_KEY`
+필수 Secrets:
+
+- `GEMINI_API_KEY`
 - `MAIL_USER`
 - `MAIL_PWD`
 - `MAIL_TO`
 
-선택값은 `Settings > Secrets and variables > Actions > Variables`에 등록할 수 있습니다.
+선택 Secrets:
 
-- `ALLOW_AI_FALLBACK`: `true`로 설정하면 OpenAI quota 오류가 나도 기본 요약 리포트를 발송합니다.
-- `NEWS_LIMIT`: OpenAI 호출량을 줄이고 싶으면 `20` 또는 `30`으로 낮출 수 있습니다.
+- `SMTP_HOST`
+- `SMTP_PORT`
+
+선택 Variables:
+
+- `GEMINI_MODEL`: 기본값 `gemini-2.5-flash`
+- `ALLOW_AI_FALLBACK`: `true`로 설정하면 Gemini 오류가 나도 기본 요약 리포트를 발송합니다.
+- `NEWS_LIMIT`: Gemini 호출량을 줄이고 싶으면 `20` 또는 `30`으로 낮출 수 있습니다.
 - `MAX_PAGES`: 크롤링 시간을 줄이고 싶으면 `2` 정도로 낮출 수 있습니다.
 
 ## 장애 대응
 
-GitHub Actions 로그에 `openai.RateLimitError`, `429 Too Many Requests`, `insufficient_quota`가 나오면 OpenAI API 키의 결제/크레딧 한도 문제입니다. OpenAI Billing에서 결제 수단과 사용 가능 크레딧을 확인해야 AI 분석이 동작합니다.
+GitHub Actions 로그에 `GEMINI_API_KEY is required`가 나오면 GitHub Secrets에 `GEMINI_API_KEY`가 없거나 이름이 잘못 등록된 것입니다. 기존 `OPENAI_API_KEY`는 더 이상 사용하지 않습니다.
+
+Gemini quota, rate limit, billing 오류가 나오면 Google AI Studio 또는 Google Cloud 쪽에서 API 키의 사용량 제한과 결제 상태를 확인해야 합니다.
 
 메일 발송 자체를 먼저 검증하려면 GitHub Variables에 `ALLOW_AI_FALLBACK=true`를 등록한 뒤 수동 실행하세요. 이 경우 AI 심층 분석 대신 원문 기반 기본 요약으로 발송됩니다.
 

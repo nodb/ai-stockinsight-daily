@@ -15,8 +15,8 @@ KST = ZoneInfo("Asia/Seoul")
 class EmailerTests(unittest.TestCase):
     def test_render_html_contains_headline_and_article(self) -> None:
         settings = Settings(
-            openai_api_key=None,
-            openai_model="gpt-4o-mini",
+            gemini_api_key=None,
+            gemini_model="gemini-2.5-flash",
             allow_ai_fallback=False,
             news_limit=50,
             max_pages=4,

@@ -33,8 +33,8 @@ def _env_int(name: str, default: int) -> int:
 
 @dataclass(frozen=True)
 class Settings:
-    openai_api_key: str | None
-    openai_model: str
+    gemini_api_key: str | None
+    gemini_model: str
     allow_ai_fallback: bool
     news_limit: int
     max_pages: int
@@ -48,8 +48,8 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         return cls(
-            openai_api_key=_env_str("OPENAI_API_KEY"),
-            openai_model=_env_str("OPENAI_MODEL", "gpt-4o-mini") or "gpt-4o-mini",
+            gemini_api_key=_env_str("GEMINI_API_KEY"),
+            gemini_model=_env_str("GEMINI_MODEL", "gemini-2.5-flash") or "gemini-2.5-flash",
             allow_ai_fallback=_env_bool("ALLOW_AI_FALLBACK", False),
             news_limit=_env_int("NEWS_LIMIT", 50),
             max_pages=_env_int("MAX_PAGES", 4),
