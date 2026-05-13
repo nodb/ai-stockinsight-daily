@@ -4,192 +4,130 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>증권 리포트</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: #f4f6f8;
-        color: #17202a;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-        line-height: 1.55;
-      }
-      .wrap {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 28px 16px;
-      }
-      .panel {
-        background: #ffffff;
-        border: 1px solid #d9e0e7;
-        border-radius: 8px;
-        padding: 24px;
-        margin-bottom: 16px;
-      }
-      h1, h2, h3 {
-        margin: 0;
-        line-height: 1.25;
-      }
-      h1 {
-        font-size: 26px;
-      }
-      h2 {
-        font-size: 18px;
-        margin-bottom: 14px;
-      }
-      h3 {
-        font-size: 16px;
-        margin-bottom: 8px;
-      }
-      a {
-        color: #1557b0;
-        text-decoration: none;
-      }
-      .date {
-        color: #667085;
-        margin-top: 6px;
-        font-size: 13px;
-      }
-      .macro {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        margin-top: 16px;
-      }
-      .metric {
-        background: #f7f9fb;
-        border: 1px solid #e5eaf0;
-        border-radius: 6px;
-        padding: 10px 12px;
-      }
-      .metric span {
-        display: block;
-        color: #667085;
-        font-size: 12px;
-      }
-      .metric strong {
-        font-size: 15px;
-      }
-      .article {
-        border-top: 1px solid #e5eaf0;
-        padding-top: 16px;
-        margin-top: 16px;
-      }
-      .article:first-of-type {
-        border-top: 0;
-        padding-top: 0;
-        margin-top: 0;
-      }
-      .meta {
-        color: #667085;
-        font-size: 12px;
-        margin-bottom: 8px;
-      }
-      .badges {
-        margin-top: 10px;
-      }
-      .badge {
-        display: inline-block;
-        border: 1px solid #cfd8e3;
-        border-radius: 999px;
-        color: #344054;
-        padding: 2px 8px;
-        font-size: 12px;
-        margin: 0 4px 4px 0;
-      }
-      .quick {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .quick td {
-        border-top: 1px solid #e5eaf0;
-        padding: 10px 0;
-        vertical-align: top;
-      }
-      .quick .signal {
-        width: 42px;
-        font-weight: 700;
-      }
-      .summary {
-        color: #344054;
-        margin: 6px 0 0;
-      }
-      .disclaimer {
-        color: #667085;
-        font-size: 12px;
-      }
-      @media (max-width: 560px) {
-        .macro {
-          grid-template-columns: 1fr;
-        }
-        .panel {
-          padding: 18px;
-        }
-      }
-    </style>
   </head>
-  <body>
-    <div class="wrap">
-      <div class="panel">
-        <h1>증권 리포트</h1>
-        <div class="date">{{ generated_at.strftime("%Y-%m-%d %H:%M KST") }}</div>
-        <p>{{ headline }}</p>
-        <div class="macro">
-          <div class="metric"><span>KOSPI</span><strong>{{ macro.kospi or "N/A" }}</strong></div>
-          <div class="metric"><span>KOSDAQ</span><strong>{{ macro.kosdaq or "N/A" }}</strong></div>
-          <div class="metric"><span>USD/KRW</span><strong>{{ macro.usd_krw or "N/A" }}</strong></div>
-        </div>
-      </div>
+  <body style="margin:0; padding:0; background-color:#f4f6f8; color:#17202a; font-family:Arial, 'Malgun Gothic', sans-serif; line-height:1.55;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f4f6f8" style="width:100%; background-color:#f4f6f8; margin:0; padding:0;">
+      <tr>
+        <td align="center" style="padding:28px 12px;">
+          <table role="presentation" width="760" cellspacing="0" cellpadding="0" border="0" style="width:760px; max-width:760px; border-collapse:collapse;">
+            <tr>
+              <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
+                <h1 style="margin:0; color:#17202a; font-size:26px; line-height:1.25; font-weight:700;">증권 리포트</h1>
+                <p style="margin:6px 0 0; color:#667085; font-size:13px;">{{ generated_at.strftime("%Y-%m-%d %H:%M KST") }}</p>
+                <p style="margin:16px 0 0; color:#17202a; font-size:15px;">{{ headline }}</p>
 
-      <div class="panel">
-        <h2>Top 5 Deep Dive</h2>
-        {% for article in top_articles %}
-          {% set item = analysis.get(article.article_id) %}
-          <div class="article">
-            <div class="meta">#{{ loop.index }} · {{ article.section }} · {{ article.press }} · {{ article.published_at.strftime("%m/%d %H:%M") }}</div>
-            <h3><a href="{{ article.url }}">{{ article.title }}</a></h3>
-            {% if item %}
-              <p class="summary">{{ item.summary }}</p>
-              <p>{{ item.insight }}</p>
-              <div class="badges">
-                <span class="badge">{{ item.sentiment|sentiment_icon }} {{ item.sentiment }} {{ item.sentiment_score|score_label }}</span>
-                {% for ticker in article.tickers %}
-                  <span class="badge">{{ ticker.name }} {{ ticker.code }}</span>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse; margin-top:16px;">
+                  <tr>
+                    <td width="33.33%" valign="top" style="padding:0 4px 0 0;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
+                        <tr>
+                          <td style="padding:10px 12px;">
+                            <p style="margin:0; color:#667085; font-size:12px;">KOSPI</p>
+                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kospi or "N/A" }}</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="33.33%" valign="top" style="padding:0 4px;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
+                        <tr>
+                          <td style="padding:10px 12px;">
+                            <p style="margin:0; color:#667085; font-size:12px;">KOSDAQ</p>
+                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kosdaq or "N/A" }}</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="33.33%" valign="top" style="padding:0 0 0 4px;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
+                        <tr>
+                          <td style="padding:10px 12px;">
+                            <p style="margin:0; color:#667085; font-size:12px;">USD/KRW</p>
+                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.usd_krw or "N/A" }}</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
+                <h2 style="margin:0 0 14px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Top 5 Deep Dive</h2>
+                {% for article in top_articles %}
+                  {% set item = analysis.get(article.article_id) %}
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;{% if not loop.first %} border-top:1px solid #e5eaf0; margin-top:16px;{% endif %}">
+                    <tr>
+                      <td style="{% if not loop.first %}padding-top:16px;{% endif %}">
+                        <p style="margin:0 0 8px; color:#667085; font-size:12px;">#{{ loop.index }} | {{ article.section }} | {{ article.press }} | {{ article.published_at.strftime("%m/%d %H:%M") }}</p>
+                        <h3 style="margin:0 0 8px; color:#17202a; font-size:16px; line-height:1.35; font-weight:700;">
+                          <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
+                        </h3>
+                        {% if item %}
+                          <p style="margin:6px 0 0; color:#344054; font-size:14px;">{{ item.summary }}</p>
+                          <p style="margin:10px 0 0; color:#17202a; font-size:14px;">{{ item.insight }}</p>
+                          <p style="margin:10px 0 0;">
+                            <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ item.sentiment|sentiment_icon }} {{ item.sentiment_score|score_label }}</span>
+                            {% for ticker in article.tickers %}
+                              <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ ticker.name }} {{ ticker.code }}</span>
+                            {% endfor %}
+                            {% for sector in item.beneficiary_sectors %}
+                              <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ sector }}</span>
+                            {% endfor %}
+                          </p>
+                          {% if item.risk_factors %}
+                            <p style="margin:8px 0 0; color:#344054; font-size:13px;">리스크: {{ item.risk_factors|join(", ") }}</p>
+                          {% endif %}
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </table>
                 {% endfor %}
-                {% for sector in item.beneficiary_sectors %}
-                  <span class="badge">{{ sector }}</span>
-                {% endfor %}
-              </div>
-              {% if item.risk_factors %}
-                <p class="summary">리스크: {{ item.risk_factors|join(", ") }}</p>
-              {% endif %}
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
+              </td>
+            </tr>
 
-      <div class="panel">
-        <h2>Quick View</h2>
-        <p class="summary">상위 5개 심층 분석을 제외한 주요 기사들을 한 줄 요약과 감성 신호로 빠르게 훑어보는 섹션입니다.</p>
-        <table class="quick">
-          <tbody>
-            {% for article in quick_articles %}
-              {% set item = analysis.get(article.article_id) %}
-              <tr>
-                <td class="signal">{{ item.sentiment|sentiment_icon if item else "●" }} {{ item.sentiment_score|score_label if item else "0" }}</td>
-                <td>
-                  <a href="{{ article.url }}">{{ article.title }}</a>
-                  <div class="meta">{{ article.press }} · {{ article.published_at.strftime("%m/%d %H:%M") }}</div>
-                  {% if item %}<p class="summary">{{ item.summary }}</p>{% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+            <tr>
+              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
+            </tr>
 
-      <div class="panel disclaimer">
-        본 뉴스레터는 공개 뉴스와 AI 요약을 기반으로 한 정보 제공 목적의 자료입니다. 특정 종목의 매수, 매도, 보유를 권유하지 않으며 투자 판단과 책임은 투자자 본인에게 있습니다.
-      </div>
-    </div>
+            <tr>
+              <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
+                <h2 style="margin:0 0 8px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Quick View</h2>
+                <p style="margin:0 0 12px; color:#344054; font-size:14px;">상위 5개 심층 분석을 제외한 주요 기사들을 한 줄 요약과 감성 신호로 빠르게 훑어보는 섹션입니다.</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
+                  {% for article in quick_articles %}
+                    {% set item = analysis.get(article.article_id) %}
+                    <tr>
+                      <td width="52" valign="top" style="width:52px; border-top:1px solid #e5eaf0; padding:10px 8px 10px 0; color:#17202a; font-size:13px; font-weight:700;">{{ item.sentiment|sentiment_icon if item else "NEU" }} {{ item.sentiment_score|score_label if item else "0" }}</td>
+                      <td valign="top" style="border-top:1px solid #e5eaf0; padding:10px 0; color:#17202a; font-size:14px;">
+                        <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
+                        <p style="margin:4px 0 0; color:#667085; font-size:12px;">{{ article.press }} | {{ article.published_at.strftime("%m/%d %H:%M") }}</p>
+                        {% if item %}<p style="margin:6px 0 0; color:#344054; font-size:13px;">{{ item.summary }}</p>{% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:18px 24px; color:#667085; font-size:12px;">
+                본 뉴스레터는 공개 뉴스와 AI 요약을 기반으로 한 정보 제공 목적의 자료입니다. 특정 종목의 매수, 매도, 보유를 권유하지 않으며 투자 판단과 책임은 투자자 본인에게 있습니다.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

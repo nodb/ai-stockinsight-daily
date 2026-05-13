@@ -63,6 +63,7 @@ def main() -> None:
 
     emailer = NewsletterEmailer(settings=settings)
     html = emailer.render_html(ranked_articles, analysis, macro)
+    text = emailer.render_text(ranked_articles, analysis, macro)
     subject = emailer.build_subject(macro.generated_at)
 
     if args.dry_run:
@@ -73,7 +74,7 @@ def main() -> None:
         LOGGER.info("Rendered newsletter: %s", output_path.resolve())
         return
 
-    emailer.send(subject=subject, html=html)
+    emailer.send(subject=subject, html=html, text=text)
     LOGGER.info("Newsletter sent to %s", ", ".join(settings.mail_to))
 
 
