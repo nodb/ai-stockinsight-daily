@@ -38,6 +38,7 @@ class Settings:
     allow_ai_fallback: bool
     news_limit: int
     max_pages: int
+    deep_dive_count: int
     mail_user: str | None
     mail_pwd: str | None
     mail_to: list[str]
@@ -53,6 +54,7 @@ class Settings:
             allow_ai_fallback=_env_bool("ALLOW_AI_FALLBACK", False),
             news_limit=_env_int("NEWS_LIMIT", 50),
             max_pages=_env_int("MAX_PAGES", 4),
+            deep_dive_count=_env_int("DEEP_DIVE_COUNT", 10),
             mail_user=_env_str("MAIL_USER"),
             mail_pwd=_env_str("MAIL_PWD"),
             mail_to=_split_recipients(os.getenv("MAIL_TO")),

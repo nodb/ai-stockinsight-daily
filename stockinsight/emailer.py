@@ -24,8 +24,8 @@ class NewsletterEmailer:
             trim_blocks=True,
             lstrip_blocks=True,
         )
-        self.env.filters["sentiment_icon"] = sentiment_icon
-        self.env.filters["score_label"] = score_label
+        self.env.filters["sentiment_color"] = sentiment_color
+        self.env.filters["sentiment_score_label"] = sentiment_score_label
 
     def build_subject(self, generated_at: datetime) -> str:
         return f"증권 리포트 - {generated_at:%Y-%m-%d}"
@@ -35,14 +35,16 @@ class NewsletterEmailer:
         articles: list[Article],
         analysis: NewsletterAnalysis,
         macro: MacroContext,
+        deep_dive_count: int = 10,
     ) -> str:
         template = self.env.get_template("newsletter.html.j2")
+        top_articles = articles[:deep_dive_count]
         return template.render(
             generated_at=macro.generated_at,
             macro=macro,
             headline=analysis.headline,
-            top_articles=articles[:5],
-            quick_articles=articles[5:],
+            top_articles=top_articles,
+            quick_articles=articles[deep_dive_count:],
             analysis=analysis.articles,
         )
 
@@ -51,7 +53,9 @@ class NewsletterEmailer:
         articles: list[Article],
         analysis: NewsletterAnalysis,
         macro: MacroContext,
+        deep_dive_count: int = 10,
     ) -> str:
+        top_articles = articles[:deep_dive_count]
         lines = [
             f"증권 리포트 - {macro.generated_at:%Y-%m-%d %H:%M KST}",
             "",
@@ -59,9 +63,9 @@ class NewsletterEmailer:
             "",
             f"KOSPI: {macro.kospi or 'N/A'} | KOSDAQ: {macro.kosdaq or 'N/A'} | USD/KRW: {macro.usd_krw or 'N/A'}",
             "",
-            "Top 5 Deep Dive",
+            f"Top {len(top_articles)} Deep Dive",
         ]
-        for index, article in enumerate(articles[:5], start=1):
+        for index, article in enumerate(top_articles, start=1):
             item = analysis.articles.get(article.article_id)
             lines.extend(
                 [
@@ -72,12 +76,13 @@ class NewsletterEmailer:
                     item.insight if item else "",
                 ]
             )
-        if len(articles) > 5:
+        if len(articles) > deep_dive_count:
             lines.extend(["", "Quick View"])
-            for article in articles[5:]:
+            for article in articles[deep_dive_count:]:
                 item = analysis.articles.get(article.article_id)
+                score = sentiment_score_label(item.sentiment_score if item else 0)
                 summary = f" - {item.summary}" if item else ""
-                lines.append(f"- {article.title}{summary}")
+                lines.append(f"- {score} {article.title}{summary}")
         lines.extend(
             [
                 "",
@@ -101,11 +106,17 @@ class NewsletterEmailer:
             server.sendmail(self.settings.mail_user, self.settings.mail_to, message.as_string())
 
 
-def sentiment_icon(sentiment: str) -> str:
-    return {"positive": "POS", "negative": "NEG", "neutral": "NEU"}.get(sentiment, "NEU")
+def sentiment_color(score: int) -> str:
+    if score > 0:
+        return "#1557b0"
+    if score < 0:
+        return "#c2410c"
+    return "#667085"
 
 
-def score_label(score: int) -> str:
-    if score > 1:
+def sentiment_score_label(score: int) -> str:
+    if score > 0:
         return f"+{score}"
-    return str(score)
+    if score < 0:
+        return str(score)
+    return "0"

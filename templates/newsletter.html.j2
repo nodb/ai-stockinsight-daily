@@ -20,32 +20,17 @@
                   <tr>
                     <td width="33.33%" valign="top" style="padding:0 4px 0 0;">
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
-                        <tr>
-                          <td style="padding:10px 12px;">
-                            <p style="margin:0; color:#667085; font-size:12px;">KOSPI</p>
-                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kospi or "N/A" }}</p>
-                          </td>
-                        </tr>
+                        <tr><td style="padding:10px 12px;"><p style="margin:0; color:#667085; font-size:12px;">KOSPI</p><p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kospi or "N/A" }}</p></td></tr>
                       </table>
                     </td>
                     <td width="33.33%" valign="top" style="padding:0 4px;">
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
-                        <tr>
-                          <td style="padding:10px 12px;">
-                            <p style="margin:0; color:#667085; font-size:12px;">KOSDAQ</p>
-                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kosdaq or "N/A" }}</p>
-                          </td>
-                        </tr>
+                        <tr><td style="padding:10px 12px;"><p style="margin:0; color:#667085; font-size:12px;">KOSDAQ</p><p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.kosdaq or "N/A" }}</p></td></tr>
                       </table>
                     </td>
                     <td width="33.33%" valign="top" style="padding:0 0 0 4px;">
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f7f9fb" style="width:100%; background-color:#f7f9fb; border:1px solid #e5eaf0; border-collapse:collapse;">
-                        <tr>
-                          <td style="padding:10px 12px;">
-                            <p style="margin:0; color:#667085; font-size:12px;">USD/KRW</p>
-                            <p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.usd_krw or "N/A" }}</p>
-                          </td>
-                        </tr>
+                        <tr><td style="padding:10px 12px;"><p style="margin:0; color:#667085; font-size:12px;">USD/KRW</p><p style="margin:3px 0 0; color:#17202a; font-size:15px; font-weight:700;">{{ macro.usd_krw or "N/A" }}</p></td></tr>
                       </table>
                     </td>
                   </tr>
@@ -53,13 +38,11 @@
               </td>
             </tr>
 
-            <tr>
-              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
-            </tr>
+            <tr><td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td></tr>
 
             <tr>
               <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
-                <h2 style="margin:0 0 14px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Top 5 Deep Dive</h2>
+                <h2 style="margin:0 0 14px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Top {{ top_articles|length }} Deep Dive</h2>
                 {% for article in top_articles %}
                   {% set item = analysis.get(article.article_id) %}
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;{% if not loop.first %} border-top:1px solid #e5eaf0; margin-top:16px;{% endif %}">
@@ -73,7 +56,7 @@
                           <p style="margin:6px 0 0; color:#344054; font-size:14px;">{{ item.summary }}</p>
                           <p style="margin:10px 0 0; color:#17202a; font-size:14px;">{{ item.insight }}</p>
                           <p style="margin:10px 0 0;">
-                            <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ item.sentiment|sentiment_icon }} {{ item.sentiment_score|score_label }}</span>
+                            <span style="display:inline-block; color:{{ item.sentiment_score|sentiment_color }}; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px; font-weight:700;">{{ item.sentiment_score|sentiment_score_label }}</span>
                             {% for ticker in article.tickers %}
                               <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ ticker.name }} {{ ticker.code }}</span>
                             {% endfor %}
@@ -92,19 +75,16 @@
               </td>
             </tr>
 
-            <tr>
-              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
-            </tr>
+            <tr><td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td></tr>
 
             <tr>
               <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
                 <h2 style="margin:0 0 8px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Quick View</h2>
-                <p style="margin:0 0 12px; color:#344054; font-size:14px;">상위 5개 심층 분석을 제외한 주요 기사들을 한 줄 요약과 감성 신호로 빠르게 훑어보는 섹션입니다.</p>
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
                   {% for article in quick_articles %}
                     {% set item = analysis.get(article.article_id) %}
                     <tr>
-                      <td width="52" valign="top" style="width:52px; border-top:1px solid #e5eaf0; padding:10px 8px 10px 0; color:#17202a; font-size:13px; font-weight:700;">{{ item.sentiment|sentiment_icon if item else "NEU" }} {{ item.sentiment_score|score_label if item else "0" }}</td>
+                      <td width="52" valign="top" style="width:52px; border-top:1px solid #e5eaf0; padding:10px 8px 10px 0; color:{{ item.sentiment_score|sentiment_color if item else '#667085' }}; font-size:13px; font-weight:700;">{{ item.sentiment_score|sentiment_score_label if item else "0" }}</td>
                       <td valign="top" style="border-top:1px solid #e5eaf0; padding:10px 0; color:#17202a; font-size:14px;">
                         <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
                         <p style="margin:4px 0 0; color:#667085; font-size:12px;">{{ article.press }} | {{ article.published_at.strftime("%m/%d %H:%M") }}</p>
@@ -116,9 +96,7 @@
               </td>
             </tr>
 
-            <tr>
-              <td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td>
-            </tr>
+            <tr><td height="16" style="font-size:16px; line-height:16px;">&nbsp;</td></tr>
 
             <tr>
               <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:18px 24px; color:#667085; font-size:12px;">

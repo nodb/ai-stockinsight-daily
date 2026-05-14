@@ -19,7 +19,7 @@ class GeminiNewsAnalyzer:
         self.model = model
         self.allow_fallback = allow_fallback
 
-    def analyze(self, articles: list[Article], macro: MacroContext) -> NewsletterAnalysis:
+    def analyze(self, articles: list[Article], macro: MacroContext, deep_dive_count: int = 10) -> NewsletterAnalysis:
         if not self.api_key:
             if self.allow_fallback:
                 return self._fallback_analysis(articles, macro)
@@ -29,14 +29,14 @@ class GeminiNewsAnalyzer:
         analyses: dict[str, ArticleAnalysis] = {}
 
         try:
-            top_articles = articles[:5]
-            quick_articles = articles[5:]
+            top_articles = articles[:deep_dive_count]
+            quick_articles = articles[deep_dive_count:]
             if top_articles:
                 analyses.update(self._analyze_batch(client, top_articles, macro, tier="deep"))
             for start in range(0, len(quick_articles), 10):
                 batch = quick_articles[start : start + 10]
                 analyses.update(self._analyze_batch(client, batch, macro, tier="quick"))
-            headline = self._build_headline(client, macro, articles[:5])
+            headline = self._build_headline(client, macro, top_articles)
         except Exception:
             if not self.allow_fallback:
                 raise
@@ -73,7 +73,10 @@ class GeminiNewsAnalyzer:
                 "articles": [
                     {
                         "article_id": "string",
-                        "summary": "one Korean sentence",
+                        "summary": (
+                            "For deep tier, one concise Korean sentence. "
+                            "For quick tier, exactly two concise Korean sentences with slightly more detail."
+                        ),
                         "sentiment": "positive|neutral|negative",
                         "sentiment_score": "integer from -5 to 5",
                         "insight": "Korean investment implication. Required for deep tier, short for quick tier.",
@@ -93,11 +96,16 @@ class GeminiNewsAnalyzer:
             article_id = str(item.get("article_id", "")).strip()
             if not article_id:
                 continue
+            sentiment = _normalize_sentiment(item.get("sentiment"))
+            sentiment_score = _normalize_sentiment_score(
+                sentiment,
+                _clamp_int(item.get("sentiment_score"), -5, 5),
+            )
             results[article_id] = ArticleAnalysis(
                 article_id=article_id,
                 summary=str(item.get("summary", "")).strip(),
-                sentiment=_normalize_sentiment(item.get("sentiment")),
-                sentiment_score=_clamp_int(item.get("sentiment_score"), -5, 5),
+                sentiment=sentiment,
+                sentiment_score=sentiment_score,
                 insight=str(item.get("insight", "")).strip(),
                 beneficiary_sectors=[str(value).strip() for value in item.get("beneficiary_sectors", []) if str(value).strip()],
                 risk_factors=[str(value).strip() for value in item.get("risk_factors", []) if str(value).strip()],
@@ -137,7 +145,7 @@ class GeminiNewsAnalyzer:
         depth = (
             "For top-ranked articles, provide deeper implications, beneficiary sectors, and risk factors."
             if tier == "deep"
-            else "For quick-view articles, keep the summary and implication brief."
+            else "For quick-view articles, write the summary as exactly two concise Korean sentences with slightly more detail than a headline."
         )
         return (
             "You are a Korean equity market analyst writing 증권 리포트. "
@@ -154,7 +162,7 @@ class GeminiNewsAnalyzer:
 
     def _fallback_article_analysis(self, article: Article) -> ArticleAnalysis:
         summary_source = article.body or article.title
-        summary = shorten(summary_source, width=130, placeholder="...")
+        summary = shorten(summary_source, width=190, placeholder="...")
         return ArticleAnalysis(
             article_id=article.article_id,
             summary=summary,
@@ -175,6 +183,16 @@ def _normalize_sentiment(value: object) -> str:
     if "부" in text or "neg" in text:
         return "negative"
     return "neutral"
+
+
+def _normalize_sentiment_score(sentiment: str, score: int) -> int:
+    if sentiment == "positive" and score < 0:
+        return abs(score)
+    if sentiment == "negative" and score > 0:
+        return -score
+    if sentiment == "neutral":
+        return 0
+    return score
 
 
 def _clamp_int(value: object, minimum: int, maximum: int) -> int:

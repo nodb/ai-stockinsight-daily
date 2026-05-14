@@ -38,6 +38,7 @@ def main() -> None:
     allow_ai_fallback = args.allow_ai_fallback or settings.allow_ai_fallback
     limit = args.limit if args.limit is not None else settings.news_limit
     max_pages = args.max_pages if args.max_pages is not None else settings.max_pages
+    deep_dive_count = max(1, min(settings.deep_dive_count, limit))
 
     macro = MacroCollector(verify_ssl=verify_ssl).collect()
     LOGGER.info("Collected macro context: %s", macro.as_prompt_context())
@@ -59,11 +60,11 @@ def main() -> None:
         model=settings.gemini_model,
         allow_fallback=allow_ai_fallback,
     )
-    analysis = analyzer.analyze(ranked_articles, macro)
+    analysis = analyzer.analyze(ranked_articles, macro, deep_dive_count=deep_dive_count)
 
     emailer = NewsletterEmailer(settings=settings)
-    html = emailer.render_html(ranked_articles, analysis, macro)
-    text = emailer.render_text(ranked_articles, analysis, macro)
+    html = emailer.render_html(ranked_articles, analysis, macro, deep_dive_count=deep_dive_count)
+    text = emailer.render_text(ranked_articles, analysis, macro, deep_dive_count=deep_dive_count)
     subject = emailer.build_subject(macro.generated_at)
 
     if args.dry_run:

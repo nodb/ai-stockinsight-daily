@@ -29,6 +29,7 @@ jobs:
           ALLOW_AI_FALLBACK: ${{ vars.ALLOW_AI_FALLBACK }}
           NEWS_LIMIT: ${{ vars.NEWS_LIMIT }}
           MAX_PAGES: ${{ vars.MAX_PAGES }}
+          DEEP_DIVE_COUNT: ${{ vars.DEEP_DIVE_COUNT }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PWD: ${{ secrets.MAIL_PWD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
