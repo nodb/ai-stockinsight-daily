@@ -50,6 +50,10 @@ class ArticleAnalysis:
     sentiment: str
     sentiment_score: int
     insight: str = ""
+    market_impact: str = "제한적"
+    primary_sector: str = "기타"
+    risk_level: str = "normal"
+    key_terms: list[str] = field(default_factory=list)
     beneficiary_sectors: list[str] = field(default_factory=list)
     risk_factors: list[str] = field(default_factory=list)
 
@@ -58,3 +62,4 @@ class ArticleAnalysis:
 class NewsletterAnalysis:
     headline: str
     articles: dict[str, ArticleAnalysis]
+    top_keywords: list[str] = field(default_factory=list)

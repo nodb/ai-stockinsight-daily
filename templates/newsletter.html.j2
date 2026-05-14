@@ -35,6 +35,19 @@
                     </td>
                   </tr>
                 </table>
+
+                {% if top_keywords %}
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f8fafc" style="width:100%; background-color:#f8fafc; border:1px solid #e5eaf0; border-collapse:collapse; margin-top:16px;">
+                    <tr>
+                      <td style="padding:12px;">
+                        <p style="margin:0 0 8px; color:#344054; font-size:12px; font-weight:700;">오늘의 핵심 키워드</p>
+                        {% for keyword in top_keywords[:5] %}
+                          <span style="display:inline-block; color:#1557b0; background-color:#eef5ff; border:1px solid #bfdbfe; padding:4px 9px; font-size:12px; font-weight:700;">{{ keyword }}</span>
+                        {% endfor %}
+                      </td>
+                    </tr>
+                  </table>
+                {% endif %}
               </td>
             </tr>
 
@@ -53,10 +66,34 @@
                           <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
                         </h3>
                         {% if item %}
-                          <p style="margin:6px 0 0; color:#344054; font-size:14px;">{{ item.summary }}</p>
-                          <p style="margin:10px 0 0; color:#17202a; font-size:14px;">{{ item.insight }}</p>
-                          <p style="margin:10px 0 0;">
+                          <p style="margin:8px 0 0;">
+                            <span style="display:inline-block; color:#ffffff; background-color:{{ item.market_impact|impact_color }}; padding:3px 8px; font-size:12px; font-weight:700;">시장 영향: {{ item.market_impact }}</span>
                             <span style="display:inline-block; color:{{ item.sentiment_score|sentiment_color }}; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px; font-weight:700;">{{ item.sentiment_score|sentiment_score_label }}</span>
+                            {% if item.risk_level == "high" %}
+                              <span style="display:inline-block; color:#ffffff; background-color:#c2410c; padding:3px 8px; font-size:12px; font-weight:700;">주의 필요</span>
+                            {% endif %}
+                          </p>
+
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#eef5ff" style="width:100%; background-color:#eef5ff; border-left:4px solid #1557b0; border-collapse:collapse; margin-top:10px;">
+                            <tr>
+                              <td style="padding:10px 12px;">
+                                <p style="margin:0 0 4px; color:#1557b0; font-size:12px; font-weight:700;">핵심 요약</p>
+                                <p style="margin:0; color:#17202a; font-size:14px; font-weight:700;">{{ item.summary }}</p>
+                              </td>
+                            </tr>
+                          </table>
+
+                          {% if item.key_terms %}
+                            <p style="margin:10px 0 0;">
+                              {% for term in item.key_terms %}
+                                <span style="display:inline-block; color:#1557b0; background-color:#eef5ff; border:1px solid #bfdbfe; padding:3px 8px; font-size:12px; font-weight:700;">{{ term }}</span>
+                              {% endfor %}
+                            </p>
+                          {% endif %}
+
+                          <p style="margin:12px 0 0; color:#1557b0; font-size:12px; font-weight:700;">인사이트</p>
+                          <p style="margin:4px 0 0; color:#17202a; font-size:14px;">{{ item.insight }}</p>
+                          <p style="margin:10px 0 0;">
                             {% for ticker in article.tickers %}
                               <span style="display:inline-block; color:#344054; border:1px solid #cfd8e3; padding:2px 8px; font-size:12px;">{{ ticker.name }} {{ ticker.code }}</span>
                             {% endfor %}
@@ -65,7 +102,14 @@
                             {% endfor %}
                           </p>
                           {% if item.risk_factors %}
-                            <p style="margin:8px 0 0; color:#344054; font-size:13px;">리스크: {{ item.risk_factors|join(", ") }}</p>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#fff7ed" style="width:100%; background-color:#fff7ed; border:1px solid #fed7aa; border-collapse:collapse; margin-top:12px;">
+                              <tr>
+                                <td style="padding:10px 12px;">
+                                  <p style="margin:0 0 4px; color:#c2410c; font-size:12px; font-weight:700;">리스크 / 체크포인트</p>
+                                  <p style="margin:0; color:#9a3412; font-size:13px;">{{ item.risk_factors|join(", ") }}</p>
+                                </td>
+                              </tr>
+                            </table>
                           {% endif %}
                         {% endif %}
                       </td>
@@ -80,19 +124,22 @@
             <tr>
               <td bgcolor="#ffffff" style="background-color:#ffffff; border:1px solid #d9e0e7; border-radius:8px; padding:24px;">
                 <h2 style="margin:0 0 8px; color:#17202a; font-size:18px; line-height:1.25; font-weight:700;">Quick View</h2>
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
-                  {% for article in quick_articles %}
-                    {% set item = analysis.get(article.article_id) %}
-                    <tr>
-                      <td width="52" valign="top" style="width:52px; border-top:1px solid #e5eaf0; padding:10px 8px 10px 0; color:{{ item.sentiment_score|sentiment_color if item else '#667085' }}; font-size:13px; font-weight:700;">{{ item.sentiment_score|sentiment_score_label if item else "0" }}</td>
-                      <td valign="top" style="border-top:1px solid #e5eaf0; padding:10px 0; color:#17202a; font-size:14px;">
-                        <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
-                        <p style="margin:4px 0 0; color:#667085; font-size:12px;">{{ article.press }} | {{ article.published_at.strftime("%m/%d %H:%M") }}</p>
-                        {% if item %}<p style="margin:6px 0 0; color:#344054; font-size:13px;">{{ item.summary }}</p>{% endif %}
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </table>
+                {% for group in quick_groups %}
+                  <p style="margin:{% if loop.first %}6px{% else %}16px{% endif %} 0 4px; color:#344054; font-size:13px; font-weight:700;">{{ group.sector }}</p>
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
+                    {% for article in group.articles %}
+                      {% set item = analysis.get(article.article_id) %}
+                      <tr>
+                        <td width="52" valign="top" style="width:52px; border-top:1px solid #e5eaf0; padding:10px 8px 10px 0; color:{{ item.sentiment_score|sentiment_color if item else '#667085' }}; font-size:13px; font-weight:700;">{{ item.sentiment_score|sentiment_score_label if item else "0" }}</td>
+                        <td valign="top" style="border-top:1px solid #e5eaf0; padding:10px 0; color:#17202a; font-size:14px;">
+                          <a href="{{ article.url }}" style="color:#1557b0; text-decoration:none;">{{ article.title }}</a>
+                          <p style="margin:4px 0 0; color:#667085; font-size:12px;">{{ article.press }} | {{ article.published_at.strftime("%m/%d %H:%M") }}</p>
+                          {% if item %}<p style="margin:6px 0 0; color:#344054; font-size:13px;">{{ item.summary }}</p>{% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                {% endfor %}
               </td>
             </tr>
 
